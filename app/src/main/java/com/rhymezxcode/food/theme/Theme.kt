@@ -1,4 +1,4 @@
-package template.theme
+package com.rhymezxcode.food.theme
 
 import android.annotation.TargetApi
 import android.os.Build
