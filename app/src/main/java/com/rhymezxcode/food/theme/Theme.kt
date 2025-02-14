@@ -23,9 +23,9 @@ private val lightColorScheme = lightColorScheme(
 
 @Composable
 @TargetApi(Build.VERSION_CODES.S)
-fun TemplateTheme(
+fun MyFoodTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicTheme: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+    dynamicTheme: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {

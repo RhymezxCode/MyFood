@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.square.moshi.kotlin)
     implementation(libs.square.retrofit)
     implementation(libs.square.retrofit.converter.moshi)
+    implementation(libs.navigation.compose)
+    implementation(libs.compose.material.icons)
 
     debugImplementation(platform(libs.compose.bom))
     debugImplementation(libs.compose.ui.test.manifest)
