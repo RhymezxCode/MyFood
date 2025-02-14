@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     Scaffold(
-        bottomBar = { MyBottomNavigationBar() }
+        bottomBar = { MyBottomNavigationBar() },
     ) { padding ->
         AppNavigation(padding = padding) //  Manage navigation in a separate composable
     }

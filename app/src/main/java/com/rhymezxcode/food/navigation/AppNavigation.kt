@@ -17,7 +17,7 @@ fun AppNavigation(padding: PaddingValues) {
     NavHost(
         navController = navController,
         startDestination = "home", // Set the initial screen
-        modifier = Modifier.padding(padding)
+        modifier = Modifier.padding(padding),
     ) {
         composable("home") {
             HomeScreen()

@@ -1,28 +1,44 @@
-@file:Suppress("DEPRECATION")
-
 package com.rhymezxcode.food.ui
 
-import androidx.compose.foundation.BorderStroke
+import CategoryDropdown
+import TextFormField
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.CloudUpload
-import androidx.compose.material.icons.outlined.ArrowDropDown
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
+import com.rhymezxcode.food.R
+import com.rhymezxcode.food.ui.component.AddFoodButton
+import com.rhymezxcode.food.ui.component.ImageButton
+import com.rhymezxcode.food.util.Constants.CATEGORY_DEFAULT
+import com.rhymezxcode.food.util.Constants.COMPOSABLE_SPACER_HEIGHT
+import com.rhymezxcode.food.util.Constants.FONT_SIZE
+import com.rhymezxcode.food.util.Constants.VERTICAL_SPACER
+import com.rhymezxcode.food.util.launchCamera
+import com.rhymezxcode.food.util.openFilePicker
 
 @Composable
 fun AddFoodScreen() {
@@ -31,28 +47,36 @@ fun AddFoodScreen() {
             .fillMaxSize()
             .background(Color.White)
             .padding(16.dp)
-            .verticalScroll(rememberScrollState()) // Enable scrolling
+            .verticalScroll(rememberScrollState()),
     ) {
         TopBar()
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
         ImageSelection()
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(VERTICAL_SPACER.dp))
         FoodDetailsSection()
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(VERTICAL_SPACER.dp))
         AddFoodButton()
     }
 }
 
 @Composable
 fun TopBar() {
+    val navController = rememberNavController()
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = { /*TODO: Navigate back*/ }) {
-            Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
+        IconButton(onClick = { navController.navigateUp() }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_back),
+                contentDescription = "Back",
+            )
         }
-        Text(text = "Add new food", style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = "Add new food",
+            style = MaterialTheme.typography.bodyLarge,
+        )
     }
 }
 
@@ -60,151 +84,77 @@ fun TopBar() {
 fun ImageSelection() {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         ImageButton(
-            icon = Icons.Filled.CameraAlt,
+            icon = painterResource(id = com.rhymezxcode.food.R.drawable.ic_camera),
             text = "Take photo",
-            onClick = { /*TODO: Launch camera*/ }
+            onClick = { launchCamera() },
         )
         ImageButton(
-            icon = Icons.Filled.CloudUpload,
+            icon = painterResource(id = com.rhymezxcode.food.R.drawable.ic_cloud),
             text = "Upload",
-            onClick = { /*TODO: Open file picker*/ }
+            onClick = { openFilePicker() },
         )
-    }
-}
-
-@Composable
-fun ImageButton(icon: Any, text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .width(160.dp)
-            .height(80.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
-            contentColor = Color.Black
-        ),
-        border = BorderStroke(1.dp, Color.LightGray),
-        contentPadding = PaddingValues(8.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            when (icon) {
-                is androidx.compose.ui.graphics.vector.ImageVector -> Icon(
-                    imageVector = icon,
-                    contentDescription = text,
-                    modifier = Modifier.size(24.dp)
-                )
-
-                else -> {}
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = text)
-        }
     }
 }
 
 @Composable
 fun FoodDetailsSection() {
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var calories by remember { mutableStateOf("") }
-    var tag by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Dawn Delicacies") }
-    var expanded by remember { mutableStateOf(false) }
-    val categories = listOf("Dawn Delicacies", "Breakfast", "Lunch", "Dinner", "Snack")
+    val name = remember { mutableStateOf("") }
+    val description = remember { mutableStateOf("") }
+    val calories = remember { mutableStateOf("") }
+    val tag = remember { mutableStateOf("") }
+    val selectedCategory = remember { mutableStateOf(CATEGORY_DEFAULT) }
+    val expanded = remember { mutableStateOf(false) }
 
-
-    TextFormField(label = "Name", placeholder = "Enter food name", value = name, onValueChange = { name = it })
-    Spacer(modifier = Modifier.height(8.dp))
-    TextFormField(label = "Description", placeholder = "Enter food description", value = description, onValueChange = { description = it })
-    Spacer(modifier = Modifier.height(8.dp))
-
-    Column {
-        OutlinedTextField(
-            value = selectedCategory,
-            onValueChange = { },
-            modifier = Modifier
-                .fillMaxWidth(),
-            label = { Text("Category") },
-            readOnly = true,
-            trailingIcon = {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = "Dropdown")
-                }
-            },
-            shape = RoundedCornerShape(8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray
-            )
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            categories.forEach { category ->
-                DropdownMenuItem(
-                    text = { Text(category) },
-                    onClick = {
-                        selectedCategory = category
-                        expanded = false
-                    })
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier.height(8.dp))
-    TextFormField(label = "Calories", placeholder = "Enter number of calories", value = calories, onValueChange = { calories = it },
-        keyboardType = KeyboardType.Number)
-    Spacer(modifier = Modifier.height(8.dp))
-    Column {
-        TextFormField(label = "Tags", placeholder = "Add a tag", value = tag, onValueChange = { tag = it })
-        Text(text = "Press enter once you've typed a tag.", fontSize = 10.sp, color = Color.Gray)
-    }
-}
-
-@Composable
-fun TextFormField(
-    label: String,
-    placeholder: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    keyboardType: KeyboardType = KeyboardType.Text
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text(label) },
-        placeholder = { Text(placeholder) },
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        shape = RoundedCornerShape(8.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.LightGray,
-            unfocusedBorderColor = Color.LightGray
-        )
+    TextFormField(
+        label = "Name",
+        placeholder = "Enter food name",
+        value = name.value,
+        onValueChange = { name.value = it },
     )
-}
+    Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
 
-@Composable
-fun AddFoodButton() {
-    Button(
-        onClick = { /*TODO: Add food to data source*/ },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE8F0FE), contentColor = Color(0xFF1A73E8))
-    ) {
-        Text(text = "Add food")
+    TextFormField(
+        label = "Description",
+        placeholder = "Enter food description",
+        value = description.value,
+        onValueChange = { description.value = it },
+    )
+    Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
+
+    CategoryDropdown(
+        selectedCategory = selectedCategory.value,
+        expanded = expanded.value,
+        onExpandedChange = { expanded.value = it },
+        onCategorySelected = { selectedCategory.value = it },
+    )
+
+    Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
+
+    TextFormField(
+        label = "Calories",
+        placeholder = "Enter number of calories",
+        value = calories.value,
+        onValueChange = { calories.value = it },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+    )
+
+    Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
+
+    Column {
+        TextFormField(
+            label = "Tags",
+            placeholder = "Add a tag",
+            value = tag.value,
+            onValueChange = { tag.value = it },
+        )
+        Text(
+            text = "Press enter once you've typed a tag.",
+            fontSize = FONT_SIZE.sp,
+            color = Color.Gray,
+        )
     }
 }
 

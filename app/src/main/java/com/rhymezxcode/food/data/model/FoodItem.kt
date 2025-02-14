@@ -6,5 +6,5 @@ data class FoodItem(
     val calories: Int,
     val description: String,
     val imageUrl: Int,
-    val tags: List<String>
+    val tags: List<String>,
 )
