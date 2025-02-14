@@ -1,6 +1,7 @@
 package com.rhymezxcode.food.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,13 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.rhymezxcode.food.R
 import com.rhymezxcode.food.navigation.NavigationItem
 
 @Composable
-fun MyBottomNavigationBar() {
-    val navController = rememberNavController()
+fun MyBottomNavigationBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -63,25 +62,28 @@ fun BottomNavItem(
     isSelected: Boolean,
     navController: NavController,
 ) {
-    IconButton(
-        onClick = {
-            navController.navigate(item.route) {
-                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
-        },
-    ) {
-        val iconPainter = painterResource(id = item.icon)
-        Icon(
-            painter = iconPainter,
-            contentDescription = item.title,
-            tint = if (isSelected) Color.Blue else Color.Gray,
-        )
-    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        IconButton(
+            onClick = {
+                if (navController.currentDestination?.route != item.route) {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            },
+        ) {
+            Icon(
+                painter = painterResource(id = item.icon),
+                contentDescription = item.title,
+                tint = if (isSelected) Color.Blue else Color.Gray,
+            )
+        }
 
-    if (isSelected) {
-        Text(text = item.title, fontWeight = FontWeight.Bold)
+        if (isSelected) {
+            Text(text = item.title, fontWeight = FontWeight.Bold)
+        }
     }
 }
 

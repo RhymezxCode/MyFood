@@ -7,6 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.rhymezxcode.food.navigation.AppNavigation
 import com.rhymezxcode.food.theme.MyFoodTheme
 
@@ -24,8 +25,9 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
+    val navController = rememberNavController() // Create NavController once
     Scaffold(
-        bottomBar = { MyBottomNavigationBar() },
+        bottomBar = { MyBottomNavigationBar(navController) },
     ) { padding ->
         AppNavigation(padding = padding) //  Manage navigation in a separate composable
     }
