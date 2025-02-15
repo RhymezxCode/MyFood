@@ -73,33 +73,35 @@ dependencies {
     implementation(libs.square.retrofit.converter.moshi)
     implementation(libs.navigation.compose)
     implementation(libs.compose.material.icons)
+    implementation(libs.hilt.navigation.compose)
+
+    // OkHttp and Logging Interceptor
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 
     debugImplementation(platform(libs.compose.bom))
     debugImplementation(libs.compose.ui.test.manifest)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.square.leakcanary)
 
-    annotationProcessor(libs.androidx.room.compiler)
+    // Use KSP for code generation
+    ksp(libs.androidx.room.compiler)
+    ksp(libs.hilt.compiler)
+    ksp(libs.square.moshi.kotlin.codegen)
 
+    // Testing dependencies
     testImplementation(libs.junit)
-
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.androidx.test.espresso.core)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.compose.ui.test.junit)
     androidTestImplementation(libs.hilt.android.testing)
-
-    ksp(libs.androidx.room.compiler)
-    ksp(libs.hilt.compiler)
-    ksp(libs.square.moshi.kotlin.codegen)
-
-    kspAndroidTest(libs.hilt.android.compiler)
 }
 
 tasks.formatKotlinMain {
-    exclude { it.file.path.contains("build/")}
+    exclude { it.file.path.contains("build/") }
 }
 
 tasks.lintKotlinMain {
-    exclude { it.file.path.contains("build/")}
+    exclude { it.file.path.contains("build/") }
 }

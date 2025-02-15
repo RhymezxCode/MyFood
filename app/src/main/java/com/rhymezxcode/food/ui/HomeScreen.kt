@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -25,6 +26,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,15 +37,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rhymezxcode.food.R
 import com.rhymezxcode.food.data.model.FoodItem
 import com.rhymezxcode.food.ui.component.CategoryButton
 import com.rhymezxcode.food.ui.component.FoodItemCard
+import com.rhymezxcode.food.ui.viewModel.FoodViewModel
 import com.rhymezxcode.food.util.Constants.AVATAR_SIZE
 import com.rhymezxcode.food.util.Constants.LIGHT_GRAY_BACKGROUND
 import com.rhymezxcode.food.util.Constants.SPACER_SIZE
 
+
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: FoodViewModel = hiltViewModel()) {
+    val foodList by viewModel.foodList.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
+
+    // Call fetchFoodList when the screen is first loaded
+    LaunchedEffect(Unit) {
+        viewModel.fetchFoodList()
+    }
+
     Scaffold { padding ->
         Column(
             modifier = Modifier
@@ -53,7 +70,16 @@ fun HomeScreen() {
             HeaderSection()
             SearchSection()
             CategorySection()
-            AllFoodsSection()
+
+            // Display the error message if it's not null
+            if (errorMessage != null) {
+                Text(
+                    text = "Error: $errorMessage",
+                    color = Color.Red,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+            AllFoodsSection(foodList, isLoading)
         }
     }
 }
@@ -71,7 +97,7 @@ fun HeaderSection() {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
-                painter = painterResource(id = com.rhymezxcode.food.R.drawable.user_avatar),
+                painter = painterResource(id = R.drawable.user_avatar), // Use R.drawable here
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(AVATAR_SIZE.dp)
@@ -86,7 +112,7 @@ fun HeaderSection() {
 
         IconButton(onClick = { /*TODO*/ }) {
             Icon(
-                painter = painterResource(id = com.rhymezxcode.food.R.drawable.ic_notification),
+                painter = painterResource(id = R.drawable.ic_notification), // Use R.drawable here
                 contentDescription = "Notifications",
             )
         }
@@ -129,35 +155,36 @@ fun CategorySection() {
 }
 
 @Composable
-fun AllFoodsSection() {
+fun AllFoodsSection(foodList: List<FoodItem>, isLoading: Boolean) {
     Text(
         text = "All Foods",
         modifier = Modifier.padding(16.dp),
         fontWeight = FontWeight.Bold,
     )
 
-    val foodItems = listOf(
-        FoodItem(
-            id = 1,
-            name = "Garlic Butter Shrimp Pasta",
-            calories = 320,
-            description = "Creamy hummus spread on whole grain toast topped with sliced cucumbers and radishes.",
-            imageUrl = com.rhymezxcode.food.R.drawable.food_item_two,
-            tags = listOf("healthy", "vegetarian"),
-        ),
-        FoodItem(
-            id = 2,
-            name = "Lemon Herb Chicken Fettuccine",
-            calories = 250,
-            description = "Savory lentil soup with diced vegetables and aromatic herbs.",
-            imageUrl = com.rhymezxcode.food.R.drawable.food_item_two,
-            tags = listOf("healthy"),
-        ),
-    )
-
-    LazyColumn {
-        items(foodItems) { foodItem ->
-            FoodItemCard(foodItem = foodItem)
+    if (isLoading) {
+        // Show a progress indicator while loading
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+        }
+    } else if (foodList.isEmpty()) {
+        // Show message if no food found
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "No foods available", color = Color.Gray)
+        }
+    } else {
+        LazyColumn {
+            items(foodList) { foodItem ->
+                FoodItemCard(foodItem = foodItem)
+            }
         }
     }
 }
@@ -165,5 +192,5 @@ fun AllFoodsSection() {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+     HomeScreen()
 }
