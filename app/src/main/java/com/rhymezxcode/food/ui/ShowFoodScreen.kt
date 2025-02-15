@@ -58,7 +58,6 @@ import com.rhymezxcode.food.util.Constants.IMAGE_HEIGHT
 import com.rhymezxcode.food.util.Constants.NOTES_FONT_SIZE
 import com.rhymezxcode.food.util.Constants.PRIMARY_BLUE
 import com.rhymezxcode.food.util.Constants.SPACER_WIDTH
-import com.rhymezxcode.food.util.safeNavigateUp
 import com.rhymezxcode.food.util.showToast
 
 @Composable

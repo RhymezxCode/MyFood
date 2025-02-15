@@ -17,9 +17,22 @@ import com.rhymezxcode.food.util.Constants.ELEVATION
 import com.rhymezxcode.food.util.addFood
 
 @Composable
-fun AddFoodButton() {
+fun AddFoodButton(
+    name: String,
+    description: String,
+    categoryId: String,
+    calories: String,
+    tags: List<String>,
+    onAddFood: () -> Unit // Function to handle food addition
+) {
+    val isEnabled = name.isNotBlank() &&
+        description.isNotBlank() &&
+        categoryId.isNotBlank() &&
+        calories.isNotBlank() &&
+        tags.isNotEmpty()
+
     Button(
-        onClick = { addFood() },
+        onClick = { onAddFood() },
         modifier = Modifier
             .fillMaxWidth()
             .height(ELEVATION.dp),
@@ -28,6 +41,7 @@ fun AddFoodButton() {
             containerColor = Color(BUTTON_ALPHA),
             contentColor = Color(BUTTON_COLOR),
         ),
+        enabled = isEnabled // Enable only when all fields are filled
     ) {
         Text(text = "Add food")
     }

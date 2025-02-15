@@ -1,13 +1,7 @@
 package com.rhymezxcode.food.util
 
-import android.R.attr.path
 import android.content.Context
 import android.widget.Toast
-import androidx.navigation.NavController
-
-fun NavController.safeNavigateUp() {
-    currentDestination?.run { navigateUp() }
-}
 
 // For Toast
 fun Context.showToast(message: String) {

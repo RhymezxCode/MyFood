@@ -1,10 +1,14 @@
 package com.rhymezxcode.food.di
 
 import com.rhymezxcode.food.data.api.FoodApiService
+import com.rhymezxcode.food.data.repository.CreateFoodRepository
+import com.rhymezxcode.food.data.repository.CreateFoodRepositoryImpl
 import com.rhymezxcode.food.data.repository.FetchAllFoodRepository
 import com.rhymezxcode.food.data.repository.FetchAllFoodRepositoryImpl
 import com.rhymezxcode.food.data.repository.FetchOneFoodRepository
 import com.rhymezxcode.food.data.repository.FetchOneFoodRepositoryImpl
+import com.rhymezxcode.food.data.repository.UpdateFoodRepository
+import com.rhymezxcode.food.data.repository.UpdateFoodRepositoryImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Binds
@@ -22,6 +26,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindCreateFoodRepository(
+        createFoodRepositoryImpl: CreateFoodRepositoryImpl
+    ): CreateFoodRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUpdateFoodRepository(
+        updateFoodRepositoryImpl: UpdateFoodRepositoryImpl
+    ): UpdateFoodRepository
 
     @Binds
     @Singleton
