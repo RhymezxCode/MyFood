@@ -1,30 +1,26 @@
 package com.rhymezxcode.food.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.rhymezxcode.food.ui.AddFoodScreen
+import com.rhymezxcode.food.ui.FavouriteScreen
+import com.rhymezxcode.food.ui.GeneratorScreen
 import com.rhymezxcode.food.ui.HomeScreen
+import com.rhymezxcode.food.ui.PlannerScreen
 
 @Composable
-fun AppNavigation(padding: PaddingValues) {
-    val navController = rememberNavController()
-
+fun AppNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "home", // Set the initial screen
-        modifier = Modifier.padding(padding),
+        startDestination = "home",
     ) {
-        composable("home") {
-            HomeScreen()
-        }
-        composable("add") {
-            AddFoodScreen()
-        }
-        // Add more composable destinations for your other screens
+        composable("home") { HomeScreen() }
+        composable("generator") { GeneratorScreen() }
+        composable("add") { AddFoodScreen() }
+        composable("favourite") { FavouriteScreen() }
+        composable("planner") { PlannerScreen() }
     }
 }
+
