@@ -3,7 +3,9 @@ package com.rhymezxcode.food.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -14,9 +16,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.rhymezxcode.food.navigation.AppNavigation
 import com.rhymezxcode.food.theme.MyFoodTheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.activity.SystemBarStyle
+import androidx.compose.foundation.layout.imePadding
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(Color.Transparent.toArgb(), Color.Transparent.toArgb()),
+            navigationBarStyle = SystemBarStyle.auto(Color.Transparent.toArgb(), Color.Transparent.toArgb())
+        )
+
         super.onCreate(savedInstanceState)
         setContent {
             MyFoodTheme {
@@ -29,11 +41,20 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
-    val navController = rememberNavController() // Create NavController once
+    val navController = rememberNavController()
     Scaffold(
-        bottomBar = { MyBottomNavigationBar(navController) },
+        bottomBar = {
+            MyBottomNavigationBar(navController)
+        },
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding() // Fix for system insets & keyboard overlap
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) { // Apply padding properly
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             AppNavigation(navController)
         }
     }
