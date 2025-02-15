@@ -29,7 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavHostController
 import com.rhymezxcode.food.R
 import com.rhymezxcode.food.ui.component.AddFoodButton
 import com.rhymezxcode.food.ui.component.ImageButton
@@ -41,7 +41,7 @@ import com.rhymezxcode.food.util.launchCamera
 import com.rhymezxcode.food.util.openFilePicker
 
 @Composable
-fun AddFoodScreen() {
+fun AddFoodScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,7 +49,7 @@ fun AddFoodScreen() {
             .padding(16.dp)
             .verticalScroll(rememberScrollState()),
     ) {
-        TopBar()
+        TopBar(navController = navController)
         Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
         ImageSelection()
         Spacer(modifier = Modifier.height(VERTICAL_SPACER.dp))
@@ -60,14 +60,13 @@ fun AddFoodScreen() {
 }
 
 @Composable
-fun TopBar() {
-    val navController = rememberNavController()
+fun TopBar(navController: NavHostController) {
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = { navController.navigateUp() }) {
+        IconButton(onClick = { navController.popBackStack() }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_back),
                 contentDescription = "Back",
@@ -87,12 +86,12 @@ fun ImageSelection() {
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         ImageButton(
-            icon = painterResource(id = com.rhymezxcode.food.R.drawable.ic_camera),
+            icon = painterResource(id = R.drawable.ic_camera),
             text = "Take photo",
             onClick = { launchCamera() },
         )
         ImageButton(
-            icon = painterResource(id = com.rhymezxcode.food.R.drawable.ic_cloud),
+            icon = painterResource(id = R.drawable.ic_cloud),
             text = "Upload",
             onClick = { openFilePicker() },
         )
@@ -161,5 +160,5 @@ fun FoodDetailsSection() {
 @Preview(showBackground = true)
 @Composable
 fun AddFoodScreenPreview() {
-    AddFoodScreen()
+//    AddFoodScreen()
 }

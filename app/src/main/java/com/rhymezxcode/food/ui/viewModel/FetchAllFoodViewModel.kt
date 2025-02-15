@@ -2,8 +2,8 @@ package com.rhymezxcode.food.ui.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rhymezxcode.food.data.model.FoodItem
-import com.rhymezxcode.food.data.repository.FoodRepository
+import com.rhymezxcode.food.data.model.fetchAllFoodModel.FoodItem
+import com.rhymezxcode.food.data.repository.FetchAllFoodRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class FoodViewModel @Inject constructor(
-    private val foodRepository: FoodRepository
+class FetchAllFoodViewModel @Inject constructor(
+    private val fetchAllFoodRepository: FetchAllFoodRepository
 ) : ViewModel() {
 
     private val _foodList = MutableStateFlow<List<FoodItem>>(emptyList())
@@ -34,8 +34,8 @@ class FoodViewModel @Inject constructor(
         // Example of a repository call to fetch data
         viewModelScope.launch {
             try {
-                val foodData = foodRepository.fetchAllFoods()
-                _foodList.value = foodData
+                val foodData = fetchAllFoodRepository.fetchAllFoods()
+                _foodList.value = foodData.data ?: emptyList()
             } catch (e: Exception) {
                 // Handle error
                 _foodList.value = emptyList()

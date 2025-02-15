@@ -1,8 +1,10 @@
 package com.rhymezxcode.food.di
 
 import com.rhymezxcode.food.data.api.FoodApiService
-import com.rhymezxcode.food.data.repository.FoodRepository
-import com.rhymezxcode.food.data.repository.FoodRepositoryImpl
+import com.rhymezxcode.food.data.repository.FetchAllFoodRepository
+import com.rhymezxcode.food.data.repository.FetchAllFoodRepositoryImpl
+import com.rhymezxcode.food.data.repository.FetchOneFoodRepository
+import com.rhymezxcode.food.data.repository.FetchOneFoodRepositoryImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Binds
@@ -23,9 +25,15 @@ abstract class AppModule {
 
     @Binds
     @Singleton
-    abstract fun bindFoodRepository(
-        foodRepositoryImpl: FoodRepositoryImpl
-    ): FoodRepository
+    abstract fun bindFetchOneFoodRepository(
+        fetchOneFoodRepositoryImpl: FetchOneFoodRepositoryImpl
+    ): FetchOneFoodRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFetchAllFoodRepository(
+        fetchAllFoodRepositoryImpl: FetchAllFoodRepositoryImpl
+    ): FetchAllFoodRepository
 
     companion object {
 

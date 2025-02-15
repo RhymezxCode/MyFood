@@ -39,18 +39,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.rhymezxcode.food.R
-import com.rhymezxcode.food.data.model.FoodItem
+import com.rhymezxcode.food.data.model.fetchAllFoodModel.FoodItem
 import com.rhymezxcode.food.ui.component.CategoryButton
 import com.rhymezxcode.food.ui.component.FoodItemCard
-import com.rhymezxcode.food.ui.viewModel.FoodViewModel
+import com.rhymezxcode.food.ui.viewModel.FetchAllFoodViewModel
 import com.rhymezxcode.food.util.Constants.AVATAR_SIZE
 import com.rhymezxcode.food.util.Constants.LIGHT_GRAY_BACKGROUND
 import com.rhymezxcode.food.util.Constants.SPACER_SIZE
 
 
 @Composable
-fun HomeScreen(viewModel: FoodViewModel = hiltViewModel()) {
+fun HomeScreen(
+    viewModel: FetchAllFoodViewModel = hiltViewModel(),
+    navController: NavController // Receive NavController here
+) {
     val foodList by viewModel.foodList.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
@@ -79,7 +84,7 @@ fun HomeScreen(viewModel: FoodViewModel = hiltViewModel()) {
                     modifier = Modifier.padding(16.dp)
                 )
             }
-            AllFoodsSection(foodList, isLoading)
+            AllFoodsSection(foodList, isLoading, navController = navController) // Pass NavController
         }
     }
 }
@@ -155,7 +160,11 @@ fun CategorySection() {
 }
 
 @Composable
-fun AllFoodsSection(foodList: List<FoodItem>, isLoading: Boolean) {
+fun AllFoodsSection(
+    foodList: List<FoodItem>,
+    isLoading: Boolean,
+    navController: NavController // Receive NavController here
+) {
     Text(
         text = "All Foods",
         modifier = Modifier.padding(16.dp),
@@ -183,7 +192,10 @@ fun AllFoodsSection(foodList: List<FoodItem>, isLoading: Boolean) {
     } else {
         LazyColumn {
             items(foodList) { foodItem ->
-                FoodItemCard(foodItem = foodItem)
+                FoodItemCard(
+                    foodItem = foodItem,
+                    navController = navController
+                ) // Pass NavController to FoodItemCard
             }
         }
     }
@@ -192,5 +204,6 @@ fun AllFoodsSection(foodList: List<FoodItem>, isLoading: Boolean) {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-     HomeScreen()
+    val navController = rememberNavController() // Create NavController for Preview
+    HomeScreen(navController = navController) // Pass NavController to HomeScreen in Preview
 }

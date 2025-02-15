@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.rhymezxcode.food.navigation.AppNavigation
 import com.rhymezxcode.food.theme.MyFoodTheme
@@ -40,13 +41,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+
+    // Get the current route
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
     Scaffold(
         bottomBar = {
-            MyBottomNavigationBar(navController)
+            // Hide bottom bar on the Food screen
+            currentRoute?.contains("show_food")?.let {
+                if (!it) {
+                    MyBottomNavigationBar(navController)
+                }
+            }
         },
         modifier = Modifier
             .fillMaxSize()
@@ -61,6 +72,7 @@ fun MainScreen() {
         }
     }
 }
+
 
 @Composable
 fun GeneratorScreen() {
