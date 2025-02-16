@@ -3,8 +3,12 @@ package com.rhymezxcode.food.di
 import com.rhymezxcode.food.data.api.FoodApiService
 import com.rhymezxcode.food.data.repository.CreateFoodRepository
 import com.rhymezxcode.food.data.repository.CreateFoodRepositoryImpl
+import com.rhymezxcode.food.data.repository.FetchAllCategoriesRepository
+import com.rhymezxcode.food.data.repository.FetchAllCategoriesRepositoryImpl
 import com.rhymezxcode.food.data.repository.FetchAllFoodRepository
 import com.rhymezxcode.food.data.repository.FetchAllFoodRepositoryImpl
+import com.rhymezxcode.food.data.repository.FetchAllTagsRepository
+import com.rhymezxcode.food.data.repository.FetchAllTagsRepositoryImpl
 import com.rhymezxcode.food.data.repository.FetchOneFoodRepository
 import com.rhymezxcode.food.data.repository.FetchOneFoodRepositoryImpl
 import com.rhymezxcode.food.data.repository.UpdateFoodRepository
@@ -26,6 +30,17 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
+    @Binds
+    @Singleton
+    abstract fun bindFetchAllTagsRepository(
+        fetchAllTagsRepositoryImpl: FetchAllTagsRepositoryImpl
+    ): FetchAllTagsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFetchAllCategoriesRepository(
+        fetchAllCategoriesRepositoryImpl: FetchAllCategoriesRepositoryImpl
+    ): FetchAllCategoriesRepository
 
     @Binds
     @Singleton
