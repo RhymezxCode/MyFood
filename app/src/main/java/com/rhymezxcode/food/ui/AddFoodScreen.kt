@@ -2,43 +2,40 @@ package com.rhymezxcode.food.ui
 
 import CategoryDropdown
 import TextFormField
+import android.Manifest
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil3.compose.rememberAsyncImagePainter
 import com.rhymezxcode.food.R
 import com.rhymezxcode.food.ui.component.AddFoodButton
 import com.rhymezxcode.food.ui.component.ImageButton
@@ -46,14 +43,35 @@ import com.rhymezxcode.food.ui.viewModel.CreateFoodViewModel
 import com.rhymezxcode.food.util.Constants.COMPOSABLE_SPACER_HEIGHT
 import com.rhymezxcode.food.util.Constants.FONT_SIZE
 import com.rhymezxcode.food.util.Constants.VERTICAL_SPACER
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 @Composable
 fun AddFoodScreen(
     navController: NavHostController,
     createFoodViewModel: CreateFoodViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val cameraPermissionState = remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) }
+    val storagePermissionState = remember { mutableStateOf(checkStoragePermission(context)) }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        cameraPermissionState.value = isGranted
+    }
+
+    val storagePermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        storagePermissionState.value = isGranted
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,24 +79,28 @@ fun AddFoodScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState()),
     ) {
-        // Top Bar with navigation
         TopBar(navController = navController)
-
         Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
-
-        // Image Selection UI
         ImageSelection(
             createFoodViewModel = createFoodViewModel,
+            cameraPermissionState = cameraPermissionState.value,
+            storagePermissionState = storagePermissionState.value,
+            cameraPermissionLauncher = cameraPermissionLauncher,
+            storagePermissionLauncher = storagePermissionLauncher
         )
-
         Spacer(modifier = Modifier.height(VERTICAL_SPACER.dp))
-
-        // Food details section (name, description, etc.)
-        FoodDetailsSection(
-            createFoodViewModel = createFoodViewModel,
-        )
+        FoodDetailsSection(createFoodViewModel = createFoodViewModel)
     }
 }
+
+private fun checkStoragePermission(context: Context): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+    } else {
+        ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    }
+}
+
 
 @Composable
 fun TopBar(navController: NavHostController) {
@@ -100,64 +122,120 @@ fun TopBar(navController: NavHostController) {
 }
 
 @Composable
-fun ImageSelection(createFoodViewModel: CreateFoodViewModel) {
+fun ImageSelection(
+    createFoodViewModel: CreateFoodViewModel,
+    cameraPermissionState: Boolean,
+    storagePermissionState: Boolean,
+    cameraPermissionLauncher: ActivityResultLauncher<String>,
+    storagePermissionLauncher: ActivityResultLauncher<String>
+) {
     val context = LocalContext.current
+    var selectedImages by remember { mutableStateOf(mutableListOf<Uri>()) }
 
-    val launcherCamera = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture(),
-    ) { success ->
+    val launcherCamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             createFoodViewModel.currentPhotoUri.value?.let { uri ->
-                // Create a temporary file to save the image
                 val imageFile = File(context.cacheDir, "camera_image_${System.currentTimeMillis()}.jpg")
                 context.contentResolver.openInputStream(uri)?.use { input ->
                     imageFile.outputStream().use { output ->
-                        input.copyTo(output) // Save the image to a file
+                        input.copyTo(output)
                     }
                 }
-
-                // Update ViewModel with the image file
-                createFoodViewModel.addImage(imageFile) // Add the image file directly
+                selectedImages.add(uri)
+                createFoodViewModel.addImage(imageFile)
             }
         }
     }
 
-    val launcherGallery = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            val imageFile = File(context.cacheDir, "gallery_image_${System.currentTimeMillis()}.jpg")
-            context.contentResolver.openInputStream(it)?.use { input ->
-                imageFile.outputStream().use { output ->
-                    input.copyTo(output) // Save the image to a file
+    val launcherGallery = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+        if (uris.isNotEmpty()) {
+            val imageFiles = uris.mapNotNull { uri ->
+                try {
+                    val imageFile = File(context.cacheDir, "gallery_image_${System.currentTimeMillis()}.jpg")
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        imageFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+
+                    // Convert the File to MultipartBody.Part
+                    val requestFile = imageFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    val part = MultipartBody.Part.createFormData("file", imageFile.name, requestFile)
+                    part
+                } catch (e: Exception) {
+                    Log.e("GalleryError", "Error copying image: ${e.message}")
+                    null
                 }
             }
-            createFoodViewModel.updateImages(mutableListOf(MultipartBody.Part.createFormData("images", imageFile.toString())) ) // Update ViewModel with the image
+
+            selectedImages.addAll(uris)
+            createFoodViewModel.updateImages(imageFiles)
         }
     }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        ImageButton(
-            icon = painterResource(id = R.drawable.ic_camera),
-            text = "Take photo",
-            onClick = {
-                val fileUri = createImageUri(context) // Create URI to store the captured photo
-                createFoodViewModel.setCurrentPhotoUri(fileUri) // Set the URI in the ViewModel
-                launcherCamera.launch(fileUri)
-            },
-        )
-        ImageButton(
-            icon = painterResource(id = R.drawable.ic_cloud),
-            text = "Upload",
-            onClick = {
-                launcherGallery.launch("image/*")
-            },
-        )
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            ImageButton(
+                icon = painterResource(id = R.drawable.ic_camera),
+                text = "Take photo",
+                onClick = {
+                    Log.d("ImageSelection", "Camera Button Clicked, cameraPermissionState: $cameraPermissionState") // ADD THIS LOG
+                    if (cameraPermissionState) {
+                        Log.d("ImageSelection", "Camera Permission Granted, launching camera") // ADD THIS LOG
+                        val fileUri = createImageUri(context)
+                        createFoodViewModel.setCurrentPhotoUri(fileUri)
+                        launcherCamera.launch(fileUri)
+                    } else {
+                        Log.d("ImageSelection", "Camera Permission Denied, requesting permission") // ADD THIS LOG
+                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                },
+            )
+            ImageButton(
+                icon = painterResource(id = R.drawable.ic_cloud),
+                text = "Upload",
+                onClick = {
+                    Log.d("ImageSelection", "Upload Button Clicked, storagePermissionState: $storagePermissionState") // ADD THIS LOG
+                    if (storagePermissionState) {
+                        Log.d("ImageSelection", "Storage Permission Granted, launching gallery") // ADD THIS LOG
+                        launcherGallery.launch("image/*")
+                    } else {
+                        Log.d("ImageSelection", "Storage Permission Denied, requesting permission") // ADD THIS LOG
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            storagePermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                        } else {
+                            storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        }
+                    }
+                },
+            )
+        }
+
+        if (selectedImages.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Selected Images:", style = MaterialTheme.typography.bodyMedium)
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(selectedImages) { imageUri ->
+                    Image(
+                        painter = rememberAsyncImagePainter(model = imageUri),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(Color.Gray)
+                    )
+                }
+            }
+        }
     }
 }
 
-// Helper function to create URI for camera photo
 private fun createImageUri(context: Context): Uri {
     val contentValues = ContentValues().apply {
         put(MediaStore.Images.Media.TITLE, "New Photo")
@@ -169,19 +247,17 @@ private fun createImageUri(context: Context): Uri {
 
 @Composable
 fun FoodDetailsSection(createFoodViewModel: CreateFoodViewModel) {
-    // Collecting the states from the ViewModel
     val name = createFoodViewModel.name.collectAsState().value
     val description = createFoodViewModel.description.collectAsState().value
     val calories = createFoodViewModel.calories.collectAsState().value
     val tags = createFoodViewModel.tags.collectAsState().value
     val selectedCategory = createFoodViewModel.categoryId.collectAsState().value
 
-    // Setting the mutable state of UI to ViewModel's state
     TextFormField(
         label = "Name",
         placeholder = "Enter food name",
         value = name,
-        onValueChange = { createFoodViewModel.updateName(it) }, // Update ViewModel on value change
+        onValueChange = { createFoodViewModel.updateName(it) },
     )
     Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
 
@@ -189,37 +265,35 @@ fun FoodDetailsSection(createFoodViewModel: CreateFoodViewModel) {
         label = "Description",
         placeholder = "Enter food description",
         value = description,
-        onValueChange = { createFoodViewModel.updateDescription(it) }, // Update ViewModel on value change
+        onValueChange = { createFoodViewModel.updateDescription(it) },
     )
     Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
 
     CategoryDropdown(
         selectedCategory = selectedCategory,
-        expanded = remember { mutableStateOf(false) }.value,  // Managing dropdown state locally
-        onExpandedChange = { /* Handle expanded state */ },
-        onCategorySelected = { createFoodViewModel.updateCategory(it) }, // Update ViewModel with selected category
+        expanded = remember { mutableStateOf(false) }.value,
+        onExpandedChange = { },
+        onCategorySelected = { createFoodViewModel.updateCategory(it) },
     )
-
     Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
 
     TextFormField(
         label = "Calories",
         placeholder = "Enter number of calories",
         value = calories,
-        onValueChange = { createFoodViewModel.updateCalories(it) }, // Update ViewModel on value change
+        onValueChange = { createFoodViewModel.updateCalories(it) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
     )
-
     Spacer(modifier = Modifier.height(COMPOSABLE_SPACER_HEIGHT.dp))
 
     Column {
         TextFormField(
             label = "Tags",
             placeholder = "Add a tag",
-            value = tags.joinToString(", "),  // Display tags as comma separated string
+            value = tags.joinToString(", "),
             onValueChange = {
                 val updatedTags = it.split(",").map { tag -> tag.trim() }
-                createFoodViewModel.updateTags(updatedTags) // Update ViewModel with the tags list
+                createFoodViewModel.updateTags(updatedTags)
             },
         )
         Text(
@@ -228,23 +302,15 @@ fun FoodDetailsSection(createFoodViewModel: CreateFoodViewModel) {
             color = Color.Gray,
         )
     }
-
     Spacer(modifier = Modifier.height(VERTICAL_SPACER.dp))
 
-    // Add Food button that triggers the creation of the food
     AddFoodButton(
         name = name,
         description = description,
         categoryId = selectedCategory,
         calories = calories,
         tags = tags,
-        onAddFood = { createFoodViewModel.createFood()},
+        onAddFood = { createFoodViewModel.createFood() },
     )
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun AddFoodScreenPreview() {
-//    AddFoodScreen()
-}

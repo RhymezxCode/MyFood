@@ -110,7 +110,6 @@ class CreateFoodViewModel @Inject constructor(
         return value.toRequestBody("text/plain".toMediaTypeOrNull())
     }
 
-
     // Functions to update values in the UI
     fun updateName(value: String) {
         _name.value = value
