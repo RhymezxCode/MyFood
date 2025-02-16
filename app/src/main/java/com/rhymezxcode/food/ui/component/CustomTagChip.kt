@@ -1,8 +1,11 @@
 package com.rhymezxcode.food.ui.component
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,24 +19,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
-fun CustomTagChip(label: String, onRemove: () -> Unit) {
+fun CustomTagChip(label: String, onClick: () -> Unit, onRemove: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(16.dp),
         color = Color.LightGray,
-        modifier = Modifier.padding(4.dp)
+        modifier = Modifier
+            .clickable { onClick() }
+            .padding(4.dp),
+        border = BorderStroke(1.dp, Color.Gray)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            Text(text = label, fontSize = 14.sp)
+            Text(label)
             Spacer(modifier = Modifier.width(4.dp))
-            IconButton(onClick = onRemove) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = "Remove tag")
+            IconButton(onClick = onRemove, modifier = Modifier.size(16.dp)) {
+                Icon(Icons.Default.Close, contentDescription = "Remove", modifier = Modifier.size(12.dp))
             }
         }
     }
 }
+

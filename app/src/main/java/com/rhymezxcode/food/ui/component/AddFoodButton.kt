@@ -20,15 +20,15 @@ import com.rhymezxcode.food.util.addFood
 fun AddFoodButton(
     name: String,
     description: String,
-    categoryId: String,
+    categoryId: Int,
     calories: String,
-    tags: List<String>,
+    tags: List<Int>,
     enabled: Boolean,
     onAddFood: () -> Unit // Function to handle food addition
 ) {
     val isEnabled = name.isNotBlank() &&
         description.isNotBlank() &&
-        categoryId.isNotBlank() &&
+        categoryId.toString().isNotBlank() &&
         calories.isNotBlank() &&
         tags.isNotEmpty()
 
@@ -42,7 +42,7 @@ fun AddFoodButton(
             containerColor = Color(BUTTON_ALPHA),
             contentColor = Color(BUTTON_COLOR),
         ),
-        enabled = enabled // Enable only when all fields are filled
+        enabled = isEnabled || enabled // Enable only when all fields are filled
     ) {
         Text(text = "Add food")
     }

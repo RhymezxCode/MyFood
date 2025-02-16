@@ -1,3 +1,6 @@
+package com.rhymezxcode.food.ui.component
+
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -10,25 +13,35 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.rhymezxcode.food.data.model.categories.Categories
 
 @Composable
 fun CategoryDropdown(
-    categoryList: List<String>,
-    selectedCategory: String,
+    categoryList: List<Categories>,
+    selectedCategoryId: Int?,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    onCategorySelected: (String) -> Unit,
+    onCategorySelected: (Int) -> Unit,
 ) {
+    val selectedCategoryName = categoryList.find { it.id == selectedCategoryId }?.name ?: "Select Category"
+
+    Log.d("CategoryDebug", "Category List: $categoryList")
+    Log.d("CategoryDebug", "Selected Category ID: $selectedCategoryId")
+    Log.d("CategoryDebug", "Selected Category Name: $selectedCategoryName")
+    Log.d("CategoryDebug", "Dropdown Expanded: $expanded")
 
     Box {
         OutlinedTextField(
-            value = selectedCategory,
+            value = selectedCategoryName,  // ✅ Show selected category name
             onValueChange = {},
             label = { Text("Category") },
             readOnly = true,
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
-                IconButton(onClick = { onExpandedChange(!expanded) }) {
+                IconButton(onClick = {
+                    Log.d("CategoryDebug", "Dropdown clicked, new state: ${!expanded}")
+                    onExpandedChange(!expanded)
+                }) {
                     Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
                 }
             },
@@ -36,17 +49,23 @@ fun CategoryDropdown(
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { onExpandedChange(false) },
+            onDismissRequest = {
+                Log.d("CategoryDebug", "Dropdown dismissed")
+                onExpandedChange(false)
+            },
         ) {
             categoryList.forEach { category ->
                 DropdownMenuItem(
-                    text = { Text(category) },
+                    text = { Text(category.name ?: "") },
                     onClick = {
-                        onCategorySelected(category)
-                        onExpandedChange(false) // Close dropdown after selection
+                        Log.d("CategoryDebug", "Category selected: ${category.id} - ${category.name}")
+                        onCategorySelected(category.id ?: 0)  // ✅ Pass ID
+                        onExpandedChange(false) // ✅ Close dropdown after selection
                     },
                 )
             }
         }
     }
 }
+
+

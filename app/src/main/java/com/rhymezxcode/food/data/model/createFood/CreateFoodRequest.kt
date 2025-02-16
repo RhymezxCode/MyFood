@@ -10,23 +10,23 @@ import java.io.File
 data class CreateFoodRequest(
     val name: String,
     val description: String,
-    val categoryId: String,
+    val categoryId: Int,
     val calories: String,
-    val tags: List<String>,
+    val tags: List<Int>,
     val images: List<File>
 ) {
     fun toRequestBodyParts(): Map<String, RequestBody> {
         return mapOf(
             "name" to name.toRequestBody(),
             "description" to description.toRequestBody(),
-            "category_id" to categoryId.toRequestBody(),
+            "category_id" to categoryId.toString().toRequestBody(),
             "calories" to calories.toRequestBody()
         )
     }
 
     fun toTagParts(): List<MultipartBody.Part> {
         return tags.mapIndexed { index, tag ->
-            MultipartBody.Part.createFormData("tags[$index]", tag)
+            MultipartBody.Part.createFormData("tags[$index]", tag.toString())
         }
     }
 

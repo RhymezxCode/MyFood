@@ -24,14 +24,14 @@ class CreateFoodViewModel @Inject constructor(
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> get() = _description.asStateFlow()
 
-    private val _categoryId = MutableStateFlow("")
-    val categoryId: StateFlow<String> get() = _categoryId.asStateFlow()
+    private val _categoryId = MutableStateFlow(0)
+    val categoryId: StateFlow<Int> get() = _categoryId.asStateFlow()
 
     private val _calories = MutableStateFlow("")
     val calories: StateFlow<String> get() = _calories.asStateFlow()
 
-    private val _tags = MutableStateFlow<List<String>>(emptyList())
-    val tags: StateFlow<List<String>> = _tags
+    private val _tags = MutableStateFlow<List<Int>>(emptyList())
+    val tags: StateFlow<List<Int>> = _tags
 
     private val _images = MutableStateFlow<List<File>>(emptyList())
     val images: StateFlow<List<File>> get() = _images.asStateFlow()
@@ -88,7 +88,7 @@ class CreateFoodViewModel @Inject constructor(
     private fun clearForm() {
         _name.value = ""
         _description.value = ""
-        _categoryId.value = ""
+        _categoryId.value = 0
         _calories.value = ""
         _tags.value = emptyList()
         _images.value = emptyList()
@@ -103,7 +103,7 @@ class CreateFoodViewModel @Inject constructor(
         _description.value = value
     }
 
-    fun updateCategory(value: String) {
+    fun updateCategory(value: Int) {
         _categoryId.value = value
     }
 
@@ -111,13 +111,13 @@ class CreateFoodViewModel @Inject constructor(
         _calories.value = value
     }
 
-    fun addTag(tag: String) {
+    fun addTag(tag: Int) {
         if (tag !in _tags.value) {
             _tags.value = _tags.value + tag
         }
     }
 
-    fun removeTag(tag: String) {
+    fun removeTag(tag: Int) {
         _tags.value = _tags.value - tag
     }
 
