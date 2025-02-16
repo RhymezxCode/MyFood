@@ -116,7 +116,7 @@ The `util` package contains:
 The project includes the following dependencies for static analysis, version control, and performance improvements:
 
 - **[Ktlint](/documentation/StaticAnalysis.md)** → Code formatting.
-- **[Detekt](/documentation/StaticAnalysis.md)** → Code smell detection.
+- **[Detekt](/documentation/StaticAnalysis.md)** → Code smell detection. e.g Run ./gradlew detektAll lintKotlin lint
 - **[Git Hooks](/documentation/GitHooks.md)** → Automatically performs static analysis checks.
 - **[Gradle Versions Plugin](/documentation/VersionsPlugin.md)** → Checks for dependency updates.
 - **[GitHub Actions](/documentation/GitHubActions.md)** → Continuous integration and code quality checks.
