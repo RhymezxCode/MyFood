@@ -7,7 +7,7 @@ MyFood is a feature-rich food application built using **Jetpack Compose** and **
 - Fetch all food items with images, categories, and tags
 - Fetch a single food item with detailed information
 - Create new food items
-- Update existing food items
+- Update existing food items  ( not completed)
 - Fetch all categories and tags
 - Clean and structured navigation
 - Dependency Injection using **Hilt**
