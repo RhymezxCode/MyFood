@@ -121,9 +121,9 @@ The project includes the following dependencies for static analysis, version con
 - **[Gradle Versions Plugin](/documentation/VersionsPlugin.md)** → Checks for dependency updates.
 - **[GitHub Actions](/documentation/GitHubActions.md)** → Continuous integration and code quality checks.
 - **[LeakCanary](https://square.github.io/leakcanary/)** → Memory leak detection.
-- **[Hilt](https://developer.android.com/training/dependency-injection/hilt-android)** → Dependency Injection (can be removed via `setup.gradle`).
-- **[Room](https://developer.android.com/training/data-storage/room)** → Local database (can be removed via `setup.gradle`).
-- **[Paparazzi](https://github.com/cashapp/paparazzi)** → UI testing (can be removed via `setup.gradle`).
+- **[Hilt](https://developer.android.com/training/dependency-injection/hilt-android)** → Dependency Injection.
+- **[Room](https://developer.android.com/training/data-storage/room)** → Local database.
+- **[Paparazzi](https://github.com/cashapp/paparazzi)** → UI testing.
 
 ---
 
