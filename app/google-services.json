@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "883372498358",
+    "project_id": "trackme-372712",
+    "storage_bucket": "trackme-372712.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883372498358:android:71a71563ac01fab2bbb517",
+        "android_client_info": {
+          "package_name": "com.rhymezxcode.food"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "883372498358-uv2li6ftca89a9uvrm5h020a8ni22m77.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmp5Kcg3X7mHQUpzmUqJ9dwW_eu16iZlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "883372498358-uv2li6ftca89a9uvrm5h020a8ni22m77.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

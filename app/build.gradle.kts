@@ -8,6 +8,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+//        getByName("debug") {
+//            storeFile = file("/home/rhymezxcode/Documents/MyFood/myFood.jks")
+//            storePassword = "testtest"
+//            keyAlias = "key0"
+//            keyPassword = "testtest"
+//        }
+    }
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
