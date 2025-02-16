@@ -149,5 +149,5 @@ This project is licensed under the **MIT License**.
 ---
 
 ## Contact
-For inquiries, reach out at [your-email@example.com](mailto:rhymezx.code@gmail.com).
+For inquiries, reach out at [rhymezx.code@gmail.com](mailto:rhymezx.code@gmail.com).
 
