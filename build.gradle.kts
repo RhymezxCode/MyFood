@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.android).apply(false)
     alias(libs.plugins.kotlinter).apply(false)
     alias(libs.plugins.square.sort.dependencies).apply(false)
+    alias(libs.plugins.firebase.crashlytics) apply false
 }
 
 apply(from = "buildscripts/githooks.gradle")

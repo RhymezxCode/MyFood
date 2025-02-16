@@ -1,6 +1,6 @@
 package com.rhymezxcode.food.theme
 
-import android.annotation.TargetApi
+import android.content.res.Resources
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -22,15 +22,23 @@ private val lightColorScheme = lightColorScheme(
 )
 
 @Composable
-@TargetApi(Build.VERSION_CODES.S)
 fun MyFoodTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicTheme: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    val context = LocalContext.current
+    val supportsDynamicTheming = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
     val colorScheme = when {
-        dynamicTheme && darkTheme -> dynamicDarkColorScheme(LocalContext.current)
-        dynamicTheme && !darkTheme -> dynamicLightColorScheme(LocalContext.current)
+        dynamicTheme && supportsDynamicTheming -> {
+            try {
+                if (darkTheme) dynamicDarkColorScheme(context)
+                else dynamicLightColorScheme(context)
+            } catch (e: Resources.NotFoundException) {
+                if (darkTheme) darkColorScheme else lightColorScheme // Fallback
+            }
+        }
         darkTheme -> darkColorScheme
         else -> lightColorScheme
     }

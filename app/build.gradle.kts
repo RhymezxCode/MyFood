@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.google.dagger.hilt)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -86,6 +87,11 @@ dependencies {
     // OkHttp and Logging Interceptor
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
+
+    // firebase crashlytics
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
 
     debugImplementation(platform(libs.compose.bom))
     debugImplementation(libs.compose.ui.test.manifest)
