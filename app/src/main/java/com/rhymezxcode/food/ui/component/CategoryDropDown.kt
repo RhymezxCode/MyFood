@@ -13,12 +13,12 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun CategoryDropdown(
+    categoryList: List<String>,
     selectedCategory: String,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onCategorySelected: (String) -> Unit,
 ) {
-    val categories = listOf("Fruits", "Vegetables", "Dairy", "Meat", "Grains")
 
     Box {
         OutlinedTextField(
@@ -38,7 +38,7 @@ fun CategoryDropdown(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) },
         ) {
-            categories.forEach { category ->
+            categoryList.forEach { category ->
                 DropdownMenuItem(
                     text = { Text(category) },
                     onClick = {

@@ -1,7 +1,5 @@
 package com.rhymezxcode.food.ui.viewModel
 
-import android.net.Uri
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rhymezxcode.food.data.model.createFood.CreateFoodRequest
@@ -11,10 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import javax.inject.Inject
 
@@ -23,7 +17,7 @@ class CreateFoodViewModel @Inject constructor(
     private val createFoodRepository: CreateFoodRepository
 ) : ViewModel() {
 
-    // UI States to store user input
+    // UI States
     private val _name = MutableStateFlow("")
     val name: StateFlow<String> get() = _name.asStateFlow()
 
@@ -37,10 +31,10 @@ class CreateFoodViewModel @Inject constructor(
     val calories: StateFlow<String> get() = _calories.asStateFlow()
 
     private val _tags = MutableStateFlow<List<String>>(emptyList())
-    val tags: StateFlow<List<String>> get() = _tags.asStateFlow()
+    val tags: StateFlow<List<String>> = _tags
 
-    private val _images = MutableStateFlow<List<MultipartBody.Part>>(emptyList())
-    val images: StateFlow<List<MultipartBody.Part>> get() = _images.asStateFlow()
+    private val _images = MutableStateFlow<List<File>>(emptyList())
+    val images: StateFlow<List<File>> get() = _images.asStateFlow()
 
     // UI loading and error states
     private val _isLoading = MutableStateFlow(false)
@@ -49,65 +43,55 @@ class CreateFoodViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> get() = _errorMessage.asStateFlow()
 
-    // State for storing the URI of the current photo
-    val currentPhotoUri = mutableStateOf<Uri?>(null)
+    private val _successMessage = MutableStateFlow<String?>(null)
+    val successMessage: StateFlow<String?> get() = _successMessage.asStateFlow()
 
-    // Other ViewModel states and methods...
-
-    fun setCurrentPhotoUri(uri: Uri) {
-        currentPhotoUri.value = uri
-    }
-
-    // Function to create MultipartBody.Part for tags
-    fun createTagsParts(tags: List<String>?): List<MultipartBody.Part>? {
-        return tags?.map { tag ->
-            val tagBody = tag.toRequestBody("text/plain".toMediaTypeOrNull()) // Create request body for each tag
-            MultipartBody.Part.createFormData("tags", tag, tagBody)
-        }
-    }
-
-    // Method to trigger food creation
-    fun createFood() {
-        // Access the current value of tags (StateFlow value)
-        val currentTags = _tags.value
-
-        // Prepare data from UI state
-        val foodRequest = CreateFoodRequest(
-            name = createRequestBody(_name.value),
-            description = createRequestBody(_description.value),
-            categoryId = createRequestBody(_categoryId.value),
-            calories = createRequestBody(_calories.value),
-            tags = createTagsParts(currentTags.takeIf { it.isNotEmpty() } ?: emptyList()), // Convert tags to MultipartBody.Part
-            images = _images.value
-        )
+    // Method to create food
+    fun createFood(createFoodRequest: CreateFoodRequest) {
+        val parts = createFoodRequest.toRequestBodyParts()
 
         // Show loading
         _isLoading.value = true
         _errorMessage.value = null
+        _successMessage.value = null
 
-        // Perform the API call to create food
         viewModelScope.launch {
             try {
-                val response = createFoodRepository.createFood(foodRequest)
+                val response = createFoodRepository.createFood(
+                    name = parts["name"]!!,
+                    description = parts["description"]!!,
+                    categoryId = parts["category_id"]!!,
+                    calories = parts["calories"]!!,
+                    tags = createFoodRequest.toTagParts(),
+                    images = createFoodRequest.toImageParts()
+                )
+
                 if (response.isSuccessful) {
-                    // Handle success (response.data or whatever is returned)
+                    // ✅ Handle success
+                    _successMessage.value = "Food created successfully!"
+                    clearForm() // Reset form inputs
                 } else {
-                    // Handle failure
-                    _errorMessage.value = "Failed to create food"
+                    // ❌ Handle failure response
+                    val errorResponse = response.errorBody()?.string() ?: "Failed to create food"
+                    _errorMessage.value = errorResponse
                 }
             } catch (e: Exception) {
-                // Handle exception
+                // ❌ Handle exceptions (e.g., network failure)
                 _errorMessage.value = "Error creating food: ${e.message}"
             } finally {
-                // Hide loading
-                _isLoading.value = false
+                _isLoading.value = false // Hide loading state
             }
         }
     }
 
-    // Helper function to create RequestBody
-    private fun createRequestBody(value: String): RequestBody {
-        return value.toRequestBody("text/plain".toMediaTypeOrNull())
+    // ✅ Clears form after success
+    private fun clearForm() {
+        _name.value = ""
+        _description.value = ""
+        _categoryId.value = ""
+        _calories.value = ""
+        _tags.value = emptyList()
+        _images.value = emptyList()
     }
 
     // Functions to update values in the UI
@@ -127,20 +111,17 @@ class CreateFoodViewModel @Inject constructor(
         _calories.value = value
     }
 
-    fun updateTags(value: List<String>) {
-        _tags.value = value
+    fun addTag(tag: String) {
+        if (tag !in _tags.value) {
+            _tags.value = _tags.value + tag
+        }
     }
 
-    fun updateImages(value: List<MultipartBody.Part>) {
+    fun removeTag(tag: String) {
+        _tags.value = _tags.value - tag
+    }
+
+    fun updateImages(value: List<File>) {
         _images.value = value
-    }
-
-    // Updated addImage function to convert File to MultipartBody.Part before adding
-    fun addImage(imageFile: File) {
-        val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), imageFile)
-        val part = MultipartBody.Part.createFormData("images", imageFile.name, requestBody)
-        val updatedList = _images.value.toMutableList()
-        updatedList.add(part) // Add the image as MultipartBody.Part
-        _images.value = updatedList // Update the image list
     }
 }

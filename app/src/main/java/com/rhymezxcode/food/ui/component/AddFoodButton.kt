@@ -23,6 +23,7 @@ fun AddFoodButton(
     categoryId: String,
     calories: String,
     tags: List<String>,
+    enabled: Boolean,
     onAddFood: () -> Unit // Function to handle food addition
 ) {
     val isEnabled = name.isNotBlank() &&
@@ -41,7 +42,7 @@ fun AddFoodButton(
             containerColor = Color(BUTTON_ALPHA),
             contentColor = Color(BUTTON_COLOR),
         ),
-        enabled = isEnabled // Enable only when all fields are filled
+        enabled = enabled // Enable only when all fields are filled
     ) {
         Text(text = "Add food")
     }
